@@ -12852,3 +12852,21 @@ msgstr "for mange enheder bruger denne konto"
 
 msgid "login rejected:"
 msgstr "login afvist:"
+
+#, no-c-format
+msgid "SmartFlasher test"
+msgstr ""
+
+#, no-c-format
+msgid "SF Test"
+msgstr ""
+
+#, no-c-format
+msgid "Tap to run the LED test of a connected SmartFlasher. The comment shows whether the SmartFlasher has started the test."
+msgstr ""
+
+msgid "Test"
+msgstr ""
+
+msgid "No answer"
+msgstr ""

@@ -12540,3 +12540,21 @@ msgstr "너무 많은 기기가 이 계정을 사용하고 있습니다"
 
 msgid "login rejected:"
 msgstr "로그인 거부됨:"
+
+#, no-c-format
+msgid "SmartFlasher test"
+msgstr ""
+
+#, no-c-format
+msgid "SF Test"
+msgstr ""
+
+#, no-c-format
+msgid "Tap to run the LED test of a connected SmartFlasher. The comment shows whether the SmartFlasher has started the test."
+msgstr ""
+
+msgid "Test"
+msgstr ""
+
+msgid "No answer"
+msgstr ""

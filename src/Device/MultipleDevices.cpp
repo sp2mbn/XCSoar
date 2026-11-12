@@ -78,6 +78,22 @@ MultipleDevices::VegaWriteNMEA(const char *text,
       i->WriteNMEA(text, env);
 }
 
+bool
+MultipleDevices::HasSmartFlasher() const noexcept
+{
+  return std::any_of(devices.begin(), devices.end(),
+                     [](const auto *d) { return d->IsSmartFlasher(); });
+}
+
+bool
+MultipleDevices::StartSmartFlasherTest(OperationEnvironment &env) noexcept
+{
+  bool sent = false;
+  for (DeviceDescriptor *i : devices)
+    sent |= i->StartSmartFlasherTest(env);
+  return sent;
+}
+
 void
 MultipleDevices::PutMacCready(double mac_cready,
                               OperationEnvironment &env) noexcept

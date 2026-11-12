@@ -77,6 +77,16 @@ public:
 
   void VegaWriteNMEA(const char *text, OperationEnvironment &env) noexcept;
 
+  [[gnu::pure]]
+  bool HasSmartFlasher() const noexcept;
+
+  /**
+   * Ask all SmartFlasher devices to run their LED test sequence.
+   *
+   * @return true if the request has been sent to at least one device
+   */
+  bool StartSmartFlasherTest(OperationEnvironment &env) noexcept;
+
   void PutMacCready(double mac_cready, OperationEnvironment &env) noexcept;
   void PutBugs(double bugs, OperationEnvironment &env) noexcept;
   void PutBallast(double fraction, double overload,

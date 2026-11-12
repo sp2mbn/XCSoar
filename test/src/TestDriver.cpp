@@ -38,6 +38,8 @@
 #include "Device/Driver/LoEFGREN.hpp"
 #include "Device/Driver/OpenVario.hpp"
 #include "Device/Driver/PosiGraph.hpp"
+#include "Device/Driver/SmartFlasher.hpp"
+#include "Device/Driver/SmartFlasher/Device.hpp"
 #include "Device/Driver/Vaulter.hpp"
 #include "Device/Driver/Vega.hpp"
 #include "Device/Driver/Volkslogger.hpp"
@@ -1743,6 +1745,44 @@ TestLoEFGREN()
   ok1(!device->ParseNMEA("$VARIO,999.98,-12*66", nmea_info));
   ok1(!device->ParseNMEA("$PLOF,250,80,150*FF", nmea_info));
   ok1(!nmea_info.total_energy_vario_available);
+
+  delete device;
+}
+
+static void
+TestSmartFlasher()
+{
+  DumpPort port;
+  Device *device = smart_flasher_driver.CreateOnPort(dummy_config, port);
+  ok1(device != nullptr);
+
+  NullOperationEnvironment env;
+  static_cast<SmartFlasherDevice *>(device)->StartFlashTest(env);
+  ok1(port.GetLines().size() == 1 &&
+      port.GetLines().front() == "$SFCTL,FLASH,TEST*08");
+
+  NMEAInfo nmea_info;
+  nmea_info.Reset();
+  nmea_info.clock = TimeStamp{FloatDuration{1}};
+
+  ok1(device->ParseNMEA("$SFCTL,ACK,FLASH_TEST,STARTED*73", nmea_info));
+  ok1(nmea_info.smart_flasher_test_started);
+  ok1(!nmea_info.smart_flasher_test_refused);
+
+  nmea_info.Reset();
+  ok1(device->ParseNMEA("$SFCTL,NACK,TEST_ALREADY_ACTIVE*15", nmea_info));
+  ok1(nmea_info.smart_flasher_test_refused);
+  ok1(!nmea_info.smart_flasher_test_started);
+
+  /* an answer to another command is not the test */
+  nmea_info.Reset();
+  ok1(device->ParseNMEA("$SFCTL,ACK,LIST*05", nmea_info));
+  ok1(!nmea_info.smart_flasher_test_started);
+
+  /* bad checksum, and FLARM data passed through */
+  ok1(!device->ParseNMEA("$SFCTL,ACK,FLASH_TEST,STARTED*00", nmea_info));
+  ok1(!nmea_info.smart_flasher_test_started);
+  ok1(!device->ParseNMEA("$PFLAU,0,0,0,1,0,,0,,*63", nmea_info));
 
   delete device;
 }
@@ -4811,7 +4851,8 @@ int main()
              + 17 /* LXNAVQNH */
              + 25 /* LXNAVQNHModel */
              + 6 /* LXNAVQNHEcho */
-             + 43 /* POV */);
+             + 43 /* POV */
+             + 13 /* SmartFlasher */);
   TestGeneric();
   TestTasman();
   TestLK8EX1();
@@ -4856,6 +4897,7 @@ int main()
   TestACD();
   TestXCVario();
   TestLoEFGREN();
+  TestSmartFlasher();
 
   /* XXX the Triadis drivers have too many dependencies, not enabling
      for now */

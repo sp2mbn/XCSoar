@@ -363,6 +363,12 @@ struct NMEAInfo {
   double stall_ratio;
   Validity stall_ratio_available;
 
+  /**
+   * When a SmartFlasher last confirmed or refused its LED test
+   * ("$SFCTL,FLASH,TEST").
+   */
+  Validity smart_flasher_test_started, smart_flasher_test_refused;
+
   DeviceInfo device;
 
   /**

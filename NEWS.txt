@@ -64,6 +64,9 @@ Version 7.47 - not yet released
   - show the WeGlide task manager page only while WeGlide is enabled,
     and use one Upload Flight action for WeGlide and SoaringScoring
 * devices
+  - add a driver for the SmartFlasher anti-collision light, and an
+    "SF Test" InfoBox that starts its LED test when tapped and shows
+    whether the SmartFlasher has answered
   - Larus: pass on the instantaneous wind of ``$PLARW`` (``I``) next
     to the average wind (``A``)
 * android

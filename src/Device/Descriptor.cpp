@@ -12,6 +12,7 @@
 #include "Register.hpp"
 #include "Driver/FLARM/Device.hpp"
 #include "Driver/LX/Internal.hpp"
+#include "Driver/SmartFlasher/Device.hpp"
 #include "Blackboard/DeviceBlackboard.hpp"
 #include "Port/ConfiguredPort.hpp"
 #include "Port/DumpPort.hpp"
@@ -1166,6 +1167,29 @@ DeviceDescriptor::PutPilotEvent(OperationEnvironment &env) noexcept
     return false;
   } catch (...) {
     LogError(std::current_exception(), "PutPilotEvent() failed");
+    return false;
+  }
+}
+
+bool
+DeviceDescriptor::StartSmartFlasherTest(OperationEnvironment &env) noexcept
+{
+  assert(InMainThread());
+
+  if (device == nullptr || !IsSmartFlasher())
+    return false;
+
+  if (!Borrow())
+    return false;
+
+  try {
+    ScopeReturnDevice restore(*this, env);
+    static_cast<SmartFlasherDevice *>(device)->StartFlashTest(env);
+    return true;
+  } catch (OperationCancelled) {
+    return false;
+  } catch (...) {
+    LogError(std::current_exception(), "StartFlashTest() failed");
     return false;
   }
 }

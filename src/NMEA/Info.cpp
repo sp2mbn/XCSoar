@@ -159,6 +159,9 @@ NMEAInfo::Reset() noexcept
 
   // XXX StallRatio
 
+  smart_flasher_test_started.Clear();
+  smart_flasher_test_refused.Clear();
+
   device.Clear();
   secondary_device.Clear();
   flarm.Clear();
@@ -242,6 +245,8 @@ NMEAInfo::Expire() noexcept
   engine_noise_level_available.Expire(clock, std::chrono::seconds(30));
   voltage_available.Expire(clock, std::chrono::minutes(5));
   battery_level_available.Expire(clock, std::chrono::minutes(5));
+  smart_flasher_test_started.Expire(clock, std::chrono::minutes(1));
+  smart_flasher_test_refused.Expire(clock, std::chrono::minutes(1));
   flarm.Expire(clock);
   engine.Expire(clock);
 #ifdef ANDROID
@@ -392,6 +397,9 @@ NMEAInfo::Complement(const NMEAInfo &add) noexcept
 
   if (stall_ratio_available.Complement(add.stall_ratio_available))
     stall_ratio = add.stall_ratio;
+
+  smart_flasher_test_started.Complement(add.smart_flasher_test_started);
+  smart_flasher_test_refused.Complement(add.smart_flasher_test_refused);
 
   flarm.Complement(add.flarm);
 

@@ -20,6 +20,12 @@
 #include "Look/Look.hpp"
 #include "PageActions.hpp"
 #include "UIState.hpp"
+#include "Components.hpp"
+#include "BackendComponents.hpp"
+#include "Device/MultipleDevices.hpp"
+#include "Operation/MessageOperationEnvironment.hpp"
+
+#include <chrono>
 
 #ifdef HAVE_BATTERY
 #include "Hardware/PowerInfo.hpp"
@@ -275,6 +281,73 @@ InfoBoxContentHorizon::HandleClick() noexcept
     PageActions::Restore();
   else
     PageActions::ShowHorizon();
+
+  return true;
+}
+
+/**
+ * How long to wait for the SmartFlasher to answer the test request.
+ * It answers right away; the time covers a slow Bluetooth link.
+ */
+static constexpr auto SMART_FLASHER_TEST_TIMEOUT = std::chrono::seconds(3);
+
+/**
+ * How long the answer to the test request stays in the comment.
+ */
+static constexpr auto SMART_FLASHER_TEST_SHOW = std::chrono::seconds(30);
+
+[[gnu::pure]]
+static bool
+HasSmartFlasher() noexcept
+{
+  return backend_components != nullptr &&
+    backend_components->devices != nullptr &&
+    backend_components->devices->HasSmartFlasher();
+}
+
+void
+InfoBoxContentSmartFlasherTest::Update(InfoBoxData &data) noexcept
+{
+  if (!HasSmartFlasher()) {
+    requested.Clear();
+    data.SetInvalid();
+    return;
+  }
+
+  data.SetValue(_("Test"));
+  data.SetCommentColor(0);
+
+  const TimeStamp now{std::chrono::steady_clock::now().time_since_epoch()};
+  if (requested.IsOlderThan(now, SMART_FLASHER_TEST_SHOW)) {
+    requested.Clear();
+    data.SetCommentInvalid();
+    return;
+  }
+
+  const auto &basic = CommonInterface::Basic();
+  if (basic.smart_flasher_test_started.Modified(requested)) {
+    data.SetComment(_("OK"));
+  } else if (basic.smart_flasher_test_refused.Modified(requested)) {
+    data.SetComment(_("Error"));
+    data.SetCommentColor(1);
+  } else if (!requested.IsOlderThan(now, SMART_FLASHER_TEST_TIMEOUT)) {
+    data.SetComment(_("Waiting"));
+  } else {
+    data.SetComment(_("No answer"));
+    data.SetCommentColor(1);
+  }
+}
+
+bool
+InfoBoxContentSmartFlasherTest::HandleClick() noexcept
+{
+  if (!HasSmartFlasher())
+    return true;
+
+  MessageOperationEnvironment env;
+  if (backend_components->devices->StartSmartFlasherTest(env))
+    requested.Update(TimeStamp{
+        std::chrono::steady_clock::now().time_since_epoch()});
 
   return true;
 }

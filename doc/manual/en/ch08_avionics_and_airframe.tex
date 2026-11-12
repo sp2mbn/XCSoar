@@ -186,6 +186,19 @@ Example: Device A is a CAI 302, and Device B is a FLARM.
 That gives you the best of both: XCSoar has airspeed, vario and
 traffic data.
 
+\section{SmartFlasher}
+
+The SmartFlasher anti-collision light is connected between the FLARM and
+the display.  Connect XCSoar to its display port or to its Bluetooth
+connection and choose the driver ``SmartFlasher''.  The SmartFlasher
+passes the FLARM data on, so XCSoar shows the traffic as with a FLARM
+connected directly.  Anything XCSoar sends to the FLARM, such as a task
+declaration, only reaches it while the SmartFlasher's two-way bridge is
+switched on.
+
+The ``SF Test'' InfoBox starts the LED test of the SmartFlasher (see
+Section~\ref{sec:infobox-device-status}).
+
 
 \section{Managing external devices}
 

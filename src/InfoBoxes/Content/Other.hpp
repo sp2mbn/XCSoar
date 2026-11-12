@@ -4,6 +4,7 @@
 #pragma once
 
 #include "InfoBoxes/Content/Base.hpp"
+#include "time/Validity.hpp"
 
 void
 UpdateInfoBoxHeartRate(InfoBoxData &data) noexcept;
@@ -61,5 +62,25 @@ class InfoBoxContentHorizon : public InfoBoxContent
 public:
   void Update(InfoBoxData &data) noexcept override;
   void OnCustomPaint(Canvas &canvas, const PixelRect &rc) noexcept override;
+  bool HandleClick() noexcept override;
+};
+
+/**
+ * Starts the LED test of a SmartFlasher when tapped, and shows the
+ * answer in the comment.
+ */
+class InfoBoxContentSmartFlasherTest final : public InfoBoxContent {
+  /**
+   * When the pilot last started the test, on the #NMEAInfo::clock
+   * time base.
+   */
+  Validity requested;
+
+public:
+  InfoBoxContentSmartFlasherTest() noexcept {
+    requested.Clear();
+  }
+
+  void Update(InfoBoxData &data) noexcept override;
   bool HandleClick() noexcept override;
 };

@@ -479,6 +479,10 @@ public:
     return IsDriver("Vega");
   }
 
+  bool IsSmartFlasher() const noexcept {
+    return IsDriver("SmartFlasher");
+  }
+
   bool IsNMEAOut() const noexcept;
   bool IsManageable() const noexcept;
 
@@ -585,6 +589,15 @@ public:
                  OperationEnvironment &env) noexcept;
   bool PutVolume(unsigned volume, OperationEnvironment &env) noexcept;
   bool PutPilotEvent(OperationEnvironment &env) noexcept;
+
+  /**
+   * Ask a SmartFlasher to run its LED test sequence.  Does nothing
+   * for other drivers.
+   *
+   * @return true if the request has been sent
+   */
+  bool StartSmartFlasherTest(OperationEnvironment &env) noexcept;
+
   bool PutActiveFrequency(RadioFrequency frequency,
                           const char *name,
                           OperationEnvironment &env) noexcept;

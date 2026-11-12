@@ -1392,6 +1392,15 @@ static constexpr MetaData meta_data[] = {
     IBFHelper<InfoBoxContentCustomText>::Create,
   },
 
+  // e_SmartFlasherTest
+  {
+    Group::SYSTEM,
+    N_("SmartFlasher test"),
+    N_("SF Test"),
+    N_("Tap to run the LED test of a connected SmartFlasher. The comment shows whether the SmartFlasher has started the test."),
+    IBFHelper<InfoBoxContentSmartFlasherTest>::Create,
+  },
+
 };
 
 static_assert(ARRAY_SIZE(meta_data) == NUM_TYPES,
