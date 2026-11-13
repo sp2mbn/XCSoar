@@ -10,6 +10,7 @@
 #include "ManageI2CPitotDialog.hpp"
 #include "ManageCAI302Dialog.hpp"
 #include "ManageFlarmDialog.hpp"
+#include "ManageSmartFlasherDialog.hpp"
 #include "LX/ManageLXNAVVarioDialog.hpp"
 #include "LX/ManageNanoDialog.hpp"
 #include "LX/ManageLX16xxDialog.hpp"
@@ -911,6 +912,8 @@ DeviceListWidget::ManageCurrent()
     dlgConfigurationVarioShowModal(*device);
   else if (descriptor.IsDriver("BlueFly"))
     dlgConfigurationBlueFlyVarioShowModal(*device);
+  else if (descriptor.IsSmartFlasher())
+    ManageSmartFlasherDialog(*device);
 }
 
 inline void

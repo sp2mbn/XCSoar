@@ -12932,18 +12932,84 @@ msgstr "logowanie odrzucone:"
 
 #, no-c-format
 msgid "SmartFlasher test"
-msgstr ""
+msgstr "Test SmartFlashera"
 
 #, no-c-format
 msgid "SF Test"
-msgstr ""
+msgstr "Test SF"
 
 #, no-c-format
 msgid "Tap to run the LED test of a connected SmartFlasher. The comment shows whether the SmartFlasher has started the test."
-msgstr ""
+msgstr "Dotknij, aby uruchomić test diod podłączonego SmartFlashera. Komentarz pokazuje, czy SmartFlasher rozpoczął test."
 
 msgid "Test"
-msgstr ""
+msgstr "Test"
 
 msgid "No answer"
-msgstr ""
+msgstr "Brak odpowiedzi"
+
+msgid "This setting cannot be changed."
+msgstr "Tego ustawienia nie można zmienić."
+
+msgid "The SmartFlasher does not accept this value."
+msgstr "SmartFlasher nie przyjmuje tej wartości."
+
+msgid "The test is already running."
+msgstr "Test już trwa."
+
+#, no-c-format
+msgid "Steady"
+msgstr "Ciągłe"
+
+#, no-c-format
+msgid "No flashing; the light stays on."
+msgstr "Bez błysków; światło świeci cały czas."
+
+#, no-c-format
+msgid "Two quick flashes, long pause"
+msgstr "Dwa krótkie błyski, długa przerwa"
+
+#, no-c-format
+msgid "Two medium flashes, medium pause"
+msgstr "Dwa średnie błyski, średnia przerwa"
+
+#, no-c-format
+msgid "Two long flashes, short pause"
+msgstr "Dwa długie błyski, krótka przerwa"
+
+#, no-c-format
+msgid "Three quick flashes, short pause"
+msgstr "Trzy krótkie błyski, krótka przerwa"
+
+msgid "Switch the anti-collision light on or off."
+msgstr "Włącz lub wyłącz światło antykolizyjne."
+
+msgid "Flash pattern"
+msgstr "Sekwencja błysków"
+
+msgid "Brightness"
+msgstr "Jasność"
+
+msgid "Firmware build"
+msgstr "Kompilacja firmware"
+
+msgid "LED test"
+msgstr "Test diod"
+
+msgid "Parameters"
+msgstr "Parametry"
+
+msgid "Restore defaults"
+msgstr "Przywróć domyślne"
+
+msgid "The SmartFlasher has started the LED test."
+msgstr "SmartFlasher rozpoczął test diod."
+
+msgid "Use only letters, digits and punctuation other than \",\", \"*\" and \"$\"."
+msgstr "Używaj tylko liter, cyfr i znaków interpunkcyjnych innych niż \",\", \"*\" i \"$\"."
+
+msgid "Reset all SmartFlasher settings to the factory defaults?"
+msgstr "Przywrócić wszystkie ustawienia SmartFlashera do wartości fabrycznych?"
+
+msgid "Reboot the SmartFlasher? The light and the FLARM data are interrupted for a few seconds."
+msgstr "Uruchomić ponownie SmartFlashera? Światło i dane FLARM zostaną przerwane na kilka sekund."

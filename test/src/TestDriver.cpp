@@ -1788,6 +1788,119 @@ TestSmartFlasher()
 }
 
 static void
+TestSmartFlasherManage()
+{
+  NullOperationEnvironment env;
+
+  /* the answer arrives between FLARM data */
+  {
+    ReplyPort port{MakeSentence("PFLAU,0,0,0,1,0,,0,,") +
+                   MakeSentence("SFCTL,ACK,FLASH_TEST,STARTED")};
+    SmartFlasherDevice device{port};
+    const auto reply = device.RunFlashTest(env);
+    ok1(reply && reply->ack && reply->value == "FLASH_TEST,STARTED");
+    ok1(port.FindContaining("$SFCTL,FLASH,TEST*08") != nullptr);
+  }
+
+  {
+    ReplyPort port{MakeSentence("SFCTL,NACK,TEST_ALREADY_ACTIVE")};
+    SmartFlasherDevice device{port};
+    const auto reply = device.RunFlashTest(env);
+    ok1(reply && !reply->ack && reply->value == "TEST_ALREADY_ACTIVE");
+  }
+
+  /* no answer */
+  {
+    ReplyPort port{""};
+    SmartFlasherDevice device{port};
+    ok1(!device.RunFlashTest(env));
+  }
+
+  /* one request per variable; an unknown one does not hide the others */
+  {
+    ReplyPort port{MakeSentence("SFVAR,SW_VERSION,0.9.106") +
+                   MakeSentence("SFVAR,NACK,UNKNOWN_VAR,FOO") +
+                   MakeSentence("SFVAR,TEMP,23.4")};
+    SmartFlasherDevice device{port};
+    static constexpr const char *names[] = {"SW_VERSION", "TEMP", "FOO"};
+    const auto values = device.ReadVariables(names, env);
+    ok1(values.size() == 3);
+    ok1(values[0] == "0.9.106");
+    ok1(values[1] == "23.4");
+    ok1(!values[2]);
+    ok1(port.GetLines().size() == 3 &&
+        port.FindContaining("$SFVAR,TEMP*70") != nullptr);
+  }
+
+  {
+    ReplyPort port{MakeSentence("SFCTL,STATUS,FLASH_ON,1") +
+                   MakeSentence("SFCTL,STATUS,FLASH_MODE,2") +
+                   MakeSentence("SFCTL,STATUS,FLASH_BRIGHTNESS,5") +
+                   MakeSentence("SFCTL,STATUS,FLASH_TEST,0") +
+                   MakeSentence("SFCTL,ACK,FLASH_STATUS,COMPLETE")};
+    SmartFlasherDevice device{port};
+    const auto status = device.ReadFlashStatus(env);
+    ok1(status && status->on && status->mode == 2 &&
+        status->brightness == 5);
+    ok1(port.FindContaining("$SFCTL,FLASH,STATUS*0A") != nullptr);
+  }
+
+  /* an incomplete status */
+  {
+    ReplyPort port{MakeSentence("SFCTL,STATUS,FLASH_ON,1")};
+    SmartFlasherDevice device{port};
+    ok1(!device.ReadFlashStatus(env));
+  }
+
+  {
+    ReplyPort port{MakeSentence("SFCTL,ACK,FLASH_MODE,3")};
+    SmartFlasherDevice device{port};
+    const auto reply = device.SetFlashMode(3, env);
+    ok1(reply && reply->ack);
+    ok1(port.FindContaining("$SFCTL,FLASH,MODE,3*02") != nullptr);
+  }
+
+  /* both list formats, the ACK first */
+  {
+    ReplyPort port{MakeSentence("SFCTL,ACK,LIST") +
+                   MakeSentence("SFCTL,LIST,DEVICE_NAME,SmartFlasher") +
+                   MakeSentence("SFCTL,POWER_LEVEL,35") +
+                   MakeSentence("SFCTL,BT_ENABLED,true")};
+    SmartFlasherDevice device{port};
+    const auto parameters = device.ReadParameters(env);
+    ok1(parameters.size() == 3);
+    ok1(parameters.size() == 3 &&
+        parameters[0].name == "DEVICE_NAME" &&
+        parameters[0].value == "SmartFlasher" &&
+        parameters[1].name == "POWER_LEVEL" &&
+        parameters[1].value == "35" &&
+        parameters[2].name == "BT_ENABLED");
+    ok1(port.FindContaining("$SFCTL,LIST*60") != nullptr);
+  }
+
+  {
+    ReplyPort port{MakeSentence("SFCTL,ACK,POWER_LEVEL,40")};
+    SmartFlasherDevice device{port};
+    const auto reply = device.WriteParameter("POWER_LEVEL", "40", env);
+    ok1(reply && reply->ack && reply->value == "POWER_LEVEL,40");
+    ok1(port.FindContaining("$SFCTL,W,POWER_LEVEL,40*67") != nullptr);
+  }
+
+  {
+    ReplyPort port{MakeSentence("SFCTL,NACK,READ_ONLY")};
+    SmartFlasherDevice device{port};
+    const auto reply = device.WriteParameter("VOLTAGE", "12", env);
+    ok1(reply && !reply->ack && reply->value == "READ_ONLY");
+  }
+
+  ok1(SmartFlasherDevice::IsValidValue("Smart Flasher-1.2"));
+  ok1(SmartFlasherDevice::IsValidValue(""));
+  ok1(!SmartFlasherDevice::IsValidValue("a,b"));
+  ok1(!SmartFlasherDevice::IsValidValue("a*b"));
+  ok1(!SmartFlasherDevice::IsValidValue("\xc3\xa4"));
+}
+
+static void
 TestLarus()
 {
   NullPort null;
@@ -4852,7 +4965,8 @@ int main()
              + 25 /* LXNAVQNHModel */
              + 6 /* LXNAVQNHEcho */
              + 43 /* POV */
-             + 13 /* SmartFlasher */);
+             + 13 /* SmartFlasher */
+             + 25 /* SmartFlasherManage */);
   TestGeneric();
   TestTasman();
   TestLK8EX1();
@@ -4898,6 +5012,7 @@ int main()
   TestXCVario();
   TestLoEFGREN();
   TestSmartFlasher();
+  TestSmartFlasherManage();
 
   /* XXX the Triadis drivers have too many dependencies, not enabling
      for now */

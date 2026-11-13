@@ -20,9 +20,10 @@ SmartFlasherDevice::StartFlashTest(OperationEnvironment &env)
 
 /**
  * Parse the answer to "$SFCTL,FLASH,TEST": "ACK,FLASH_TEST,STARTED"
- * or "NACK,<error code>".  XCSoar sends no other SFCTL command, and
- * the SmartFlasher answers only on the port the command came from, so
- * every NACK on this port refuses the test.
+ * or "NACK,<error code>".  The "Manage" dialog reads the answers to
+ * its own commands with the receive thread stopped, and the
+ * SmartFlasher answers only on the port the command came from, so
+ * every NACK that arrives here refuses the test.
  */
 static void
 ParseSFCTL(NMEAInputLine &line, NMEAInfo &info) noexcept
@@ -59,6 +60,6 @@ SmartFlasherCreateOnPort([[maybe_unused]] const DeviceConfig &config,
 const struct DeviceRegister smart_flasher_driver = {
   "SmartFlasher",
   "SmartFlasher",
-  0,
+  DeviceRegister::MANAGE,
   SmartFlasherCreateOnPort,
 };

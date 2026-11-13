@@ -199,6 +199,25 @@ switched on.
 The ``SF Test'' InfoBox starts the LED test of the SmartFlasher (see
 Section~\ref{sec:infobox-device-status}).
 
+``Manage'' in the device list shows the firmware version and build, the
+supply voltage, the temperature and whether the SmartFlasher receives
+data from the FLARM.  While this dialogue is open, XCSoar receives no
+FLARM data.  The buttons:
+\begin{description}
+\item[LED test] runs the LED test and reports whether the SmartFlasher
+  has started it.
+\item[Light] switches the light on or off and sets the flash pattern and
+  the brightness.
+\item[Parameters] lists all settings of the SmartFlasher with their
+  values.  Select one to enter a new value; the SmartFlasher checks it
+  and refuses values it does not accept, and settings that cannot be
+  changed.  Commas, asterisks and dollar signs cannot be sent.
+\item[Restore defaults] resets all settings of the SmartFlasher to the
+  factory defaults, after a confirmation.
+\item[Reboot] restarts the SmartFlasher, after a confirmation.  The light
+  and the FLARM data are interrupted for a few seconds.
+\end{description}
+
 
 \section{Managing external devices}
 

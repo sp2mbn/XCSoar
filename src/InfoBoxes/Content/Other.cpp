@@ -325,16 +325,31 @@ InfoBoxContentSmartFlasherTest::Update(InfoBoxData &data) noexcept
   }
 
   const auto &basic = CommonInterface::Basic();
-  if (basic.smart_flasher_test_started.Modified(requested)) {
+  if (answer == Answer::NONE) {
+    if (basic.smart_flasher_test_started.Modified(requested))
+      answer = Answer::STARTED;
+    else if (basic.smart_flasher_test_refused.Modified(requested))
+      answer = Answer::REFUSED;
+  }
+
+  switch (answer) {
+  case Answer::STARTED:
     data.SetComment(_("OK"));
-  } else if (basic.smart_flasher_test_refused.Modified(requested)) {
+    break;
+
+  case Answer::REFUSED:
     data.SetComment(_("Error"));
     data.SetCommentColor(1);
-  } else if (!requested.IsOlderThan(now, SMART_FLASHER_TEST_TIMEOUT)) {
-    data.SetComment(_("Waiting"));
-  } else {
-    data.SetComment(_("No answer"));
-    data.SetCommentColor(1);
+    break;
+
+  case Answer::NONE:
+    if (!requested.IsOlderThan(now, SMART_FLASHER_TEST_TIMEOUT)) {
+      data.SetComment(_("Waiting"));
+    } else {
+      data.SetComment(_("No answer"));
+      data.SetCommentColor(1);
+    }
+    break;
   }
 }
 
@@ -345,9 +360,11 @@ InfoBoxContentSmartFlasherTest::HandleClick() noexcept
     return true;
 
   MessageOperationEnvironment env;
-  if (backend_components->devices->StartSmartFlasherTest(env))
+  if (backend_components->devices->StartSmartFlasherTest(env)) {
     requested.Update(TimeStamp{
         std::chrono::steady_clock::now().time_since_epoch()});
+    answer = Answer::NONE;
+  }
 
   return true;
 }

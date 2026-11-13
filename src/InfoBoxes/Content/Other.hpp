@@ -6,6 +6,8 @@
 #include "InfoBoxes/Content/Base.hpp"
 #include "time/Validity.hpp"
 
+#include <cstdint>
+
 void
 UpdateInfoBoxHeartRate(InfoBoxData &data) noexcept;
 
@@ -75,6 +77,20 @@ class InfoBoxContentSmartFlasherTest final : public InfoBoxContent {
    * time base.
    */
   Validity requested;
+
+  enum class Answer : uint8_t {
+    NONE,
+    STARTED,
+    REFUSED,
+  };
+
+  /**
+   * The answer to the last request.  It is kept here because the
+   * merged data loses it when the SmartFlasher sends nothing else,
+   * e.g. without a FLARM behind it: its data then expires after a
+   * few seconds.
+   */
+  Answer answer = Answer::NONE;
 
 public:
   InfoBoxContentSmartFlasherTest() noexcept {

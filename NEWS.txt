@@ -66,7 +66,10 @@ Version 7.47 - not yet released
 * devices
   - add a driver for the SmartFlasher anti-collision light, and an
     "SF Test" InfoBox that starts its LED test when tapped and shows
-    whether the SmartFlasher has answered
+    whether the SmartFlasher has answered.  Manage shows its firmware,
+    supply voltage and temperature, sets the flash pattern and
+    brightness, edits its parameters, and restores defaults or
+    reboots it
   - Larus: pass on the instantaneous wind of ``$PLARW`` (``I``) next
     to the average wind (``A``)
 * android

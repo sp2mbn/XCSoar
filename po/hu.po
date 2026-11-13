@@ -12916,3 +12916,69 @@ msgstr ""
 
 msgid "No answer"
 msgstr ""
+
+msgid "This setting cannot be changed."
+msgstr ""
+
+msgid "The SmartFlasher does not accept this value."
+msgstr ""
+
+msgid "The test is already running."
+msgstr ""
+
+#, no-c-format
+msgid "Steady"
+msgstr ""
+
+#, no-c-format
+msgid "No flashing; the light stays on."
+msgstr ""
+
+#, no-c-format
+msgid "Two quick flashes, long pause"
+msgstr ""
+
+#, no-c-format
+msgid "Two medium flashes, medium pause"
+msgstr ""
+
+#, no-c-format
+msgid "Two long flashes, short pause"
+msgstr ""
+
+#, no-c-format
+msgid "Three quick flashes, short pause"
+msgstr ""
+
+msgid "Switch the anti-collision light on or off."
+msgstr ""
+
+msgid "Flash pattern"
+msgstr ""
+
+msgid "Brightness"
+msgstr ""
+
+msgid "Firmware build"
+msgstr ""
+
+msgid "LED test"
+msgstr ""
+
+msgid "Parameters"
+msgstr ""
+
+msgid "Restore defaults"
+msgstr ""
+
+msgid "The SmartFlasher has started the LED test."
+msgstr ""
+
+msgid "Use only letters, digits and punctuation other than \",\", \"*\" and \"$\"."
+msgstr ""
+
+msgid "Reset all SmartFlasher settings to the factory defaults?"
+msgstr ""
+
+msgid "Reboot the SmartFlasher? The light and the FLARM data are interrupted for a few seconds."
+msgstr ""
