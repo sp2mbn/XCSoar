@@ -52,8 +52,8 @@ public:
     /** 0 to #MAX_BRIGHTNESS */
     unsigned brightness;
 
-    /** the result of the flash test */
-    unsigned test;
+    /** is the LED test sequence running? ("FLASH_TEST") */
+    bool test;
   };
 
   struct Parameter {

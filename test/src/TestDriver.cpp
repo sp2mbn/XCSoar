@@ -1841,8 +1841,31 @@ TestSmartFlasherManage()
     SmartFlasherDevice device{port};
     const auto status = device.ReadFlashStatus(env);
     ok1(status && status->on && status->mode == 2 &&
-        status->brightness == 5);
+        status->brightness == 5 && !status->test);
     ok1(port.FindContaining("$SFCTL,FLASH,STATUS*0A") != nullptr);
+  }
+
+  /* the ACK first, a test running */
+  {
+    ReplyPort port{MakeSentence("SFCTL,ACK,FLASH_STATUS,COMPLETE") +
+                   MakeSentence("SFCTL,STATUS,FLASH_TEST,1") +
+                   MakeSentence("SFCTL,STATUS,FLASH_ON,0") +
+                   MakeSentence("SFCTL,STATUS,FLASH_MODE,0") +
+                   MakeSentence("SFCTL,STATUS,FLASH_BRIGHTNESS,3")};
+    SmartFlasherDevice device{port};
+    const auto status = device.ReadFlashStatus(env);
+    ok1(status && !status->on && status->mode == 0 &&
+        status->brightness == 3 && status->test);
+  }
+
+  /* without "FLASH_TEST" */
+  {
+    ReplyPort port{MakeSentence("SFCTL,STATUS,FLASH_ON,1") +
+                   MakeSentence("SFCTL,STATUS,FLASH_MODE,2") +
+                   MakeSentence("SFCTL,STATUS,FLASH_BRIGHTNESS,5") +
+                   MakeSentence("SFCTL,ACK,FLASH_STATUS,COMPLETE")};
+    SmartFlasherDevice device{port};
+    ok1(!device.ReadFlashStatus(env));
   }
 
   /* an incomplete status */
@@ -4966,7 +4989,7 @@ int main()
              + 6 /* LXNAVQNHEcho */
              + 43 /* POV */
              + 13 /* SmartFlasher */
-             + 25 /* SmartFlasherManage */);
+             + 27 /* SmartFlasherManage */);
   TestGeneric();
   TestTasman();
   TestLK8EX1();

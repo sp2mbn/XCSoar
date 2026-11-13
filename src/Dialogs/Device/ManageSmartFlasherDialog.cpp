@@ -131,6 +131,7 @@ SmartFlasherLightWidget::Prepare([[maybe_unused]] ContainerWindow &parent,
              status.on);
   AddEnum(_("Flash pattern"), nullptr, mode_list, status.mode);
   AddEnum(_("Brightness"), nullptr, brightness_list, status.brightness);
+  AddReadOnly(_("LED test"), nullptr, status.test);
 }
 
 bool

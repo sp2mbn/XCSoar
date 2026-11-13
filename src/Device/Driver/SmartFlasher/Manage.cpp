@@ -172,11 +172,11 @@ SmartFlasherDevice::ReadFlashStatus(OperationEnvironment &env)
 
   /* "$SFCTL,STATUS,<KEY>,<VALUE>" for each key, in any order relative
      to "$SFCTL,ACK,FLASH_STATUS,COMPLETE" */
-  std::optional<unsigned> on, mode, brightness;
+  std::optional<unsigned> on, mode, brightness, test;
 
   const TimeoutClock timeout(REPLY_TIMEOUT);
   try {
-    while (!on || !mode || !brightness) {
+    while (!on || !mode || !brightness || !test) {
       const char *line = reader.ReadLine(timeout);
       if (line == nullptr)
         return std::nullopt;
@@ -200,12 +200,14 @@ SmartFlasherDevice::ReadFlashStatus(OperationEnvironment &env)
         mode = value;
       else if (key == "FLASH_BRIGHTNESS"sv && value <= MAX_BRIGHTNESS)
         brightness = value;
+      else if (key == "FLASH_TEST"sv)
+        test = value;
     }
   } catch (const DeviceTimeout &) {
     return std::nullopt;
   }
 
-  return FlashStatus{*on != 0, *mode, *brightness};
+  return FlashStatus{*on != 0, *mode, *brightness, *test != 0};
 }
 
 std::optional<SmartFlasherDevice::Reply>
