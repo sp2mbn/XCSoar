@@ -13013,3 +13013,6 @@ msgstr "Przywrócić wszystkie ustawienia SmartFlashera do wartości fabrycznych
 
 msgid "Reboot the SmartFlasher? The light and the FLARM data are interrupted for a few seconds."
 msgstr "Uruchomić ponownie SmartFlashera? Światło i dane FLARM zostaną przerwane na kilka sekund."
+
+msgid "Mode"
+msgstr "Tryb"

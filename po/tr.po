@@ -12924,3 +12924,6 @@ msgstr ""
 
 msgid "Reboot the SmartFlasher? The light and the FLARM data are interrupted for a few seconds."
 msgstr ""
+
+msgid "Mode"
+msgstr ""

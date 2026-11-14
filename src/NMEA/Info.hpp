@@ -369,6 +369,19 @@ struct NMEAInfo {
    */
   Validity smart_flasher_test_started, smart_flasher_test_refused;
 
+  /**
+   * The operating mode a SmartFlasher reports in "$SFINF" (field
+   * "deviceMode").  The SmartFlasher sends it on every change, and
+   * every second only while its "SFINF_PERIODIC" setting is on, so it
+   * does not expire.
+   */
+  Validity smart_flasher_mode_available;
+
+  enum class SmartFlasherMode : uint8_t {
+    FLARM,
+    STANDALONE,
+  } smart_flasher_mode;
+
   DeviceInfo device;
 
   /**

@@ -161,6 +161,7 @@ NMEAInfo::Reset() noexcept
 
   smart_flasher_test_started.Clear();
   smart_flasher_test_refused.Clear();
+  smart_flasher_mode_available.Clear();
 
   device.Clear();
   secondary_device.Clear();
@@ -400,6 +401,10 @@ NMEAInfo::Complement(const NMEAInfo &add) noexcept
 
   smart_flasher_test_started.Complement(add.smart_flasher_test_started);
   smart_flasher_test_refused.Complement(add.smart_flasher_test_refused);
+
+  if (smart_flasher_mode_available.Complement(
+        add.smart_flasher_mode_available))
+    smart_flasher_mode = add.smart_flasher_mode;
 
   flarm.Complement(add.flarm);
 

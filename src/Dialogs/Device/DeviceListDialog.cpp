@@ -130,6 +130,7 @@ class DeviceListWidget final
     bool radio:1, transponder:1;
     bool engine:1;
     bool debug:1;
+    bool smart_flasher_mode:1, smart_flasher_standalone:1;
 
 #ifdef ANDROID
     bool bluetooth_disabled:1;
@@ -202,6 +203,9 @@ class DeviceListWidget final
         basic.settings.has_standby_frequency;
       transponder = basic.settings.has_transponder_code;
       engine = basic.engine.IsAnyDefined();
+      smart_flasher_mode = basic.smart_flasher_mode_available;
+      smart_flasher_standalone = smart_flasher_mode &&
+        basic.smart_flasher_mode == NMEAInfo::SmartFlasherMode::STANDALONE;
 
 #ifdef ANDROID
       bluetooth_disabled = config.IsAndroidBluetooth() &&
@@ -477,6 +481,14 @@ DeviceListWidget::DrawAliveStatus(Canvas &canvas, PixelPoint p,
   else
     DrawStatusToken(canvas, p, regular, bold, _("Connected"),
                     false, need_sep);
+
+  if (flags.smart_flasher_mode) {
+    /* the value as in the SmartFlasher's "MODE" setting */
+    StaticString<32> mode;
+    mode.Format("%s=%s", _("Mode"),
+                flags.smart_flasher_standalone ? "STANDALONE" : "FLARM");
+    DrawStatusToken(canvas, p, regular, bold, mode, false, need_sep);
+  }
 
   if (flags.baro)
     DrawStatusToken(canvas, p, regular, bold, _("Baro"),

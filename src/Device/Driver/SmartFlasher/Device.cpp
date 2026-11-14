@@ -46,6 +46,35 @@ SmartFlasherDevice::ParseSFCTL(NMEAInputLine &line, NMEAInfo &info) noexcept
     info.smart_flasher_test_refused.Update(info.clock);
 }
 
+/**
+ * Parse "$SFINF,<uptime>,<alertState>,<deviceMode>,...".  Only
+ * "deviceMode" is used: 0 = FLARM, 1 = STANDALONE.
+ */
+static void
+ParseSFINF(NMEAInputLine &line, NMEAInfo &info) noexcept
+{
+  line.Skip(2);
+
+  unsigned mode;
+  if (!line.ReadChecked(mode))
+    return;
+
+  switch (mode) {
+  case 0:
+    info.smart_flasher_mode = NMEAInfo::SmartFlasherMode::FLARM;
+    break;
+
+  case 1:
+    info.smart_flasher_mode = NMEAInfo::SmartFlasherMode::STANDALONE;
+    break;
+
+  default:
+    return;
+  }
+
+  info.smart_flasher_mode_available.Update(info.clock);
+}
+
 bool
 SmartFlasherDevice::ParseNMEA(const char *_line, NMEAInfo &info)
 {
@@ -53,10 +82,14 @@ SmartFlasherDevice::ParseNMEA(const char *_line, NMEAInfo &info)
     return false;
 
   NMEAInputLine line(_line);
-  if (line.ReadView() != "$SFCTL"sv)
+  const auto type = line.ReadView();
+  if (type == "$SFCTL"sv)
+    ParseSFCTL(line, info);
+  else if (type == "$SFINF"sv)
+    ParseSFINF(line, info);
+  else
     return false;
 
-  ParseSFCTL(line, info);
   return true;
 }
 

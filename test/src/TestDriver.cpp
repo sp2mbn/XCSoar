@@ -1799,6 +1799,20 @@ TestSmartFlasher()
   ok1(!nmea_info.smart_flasher_test_started);
   ok1(!device->ParseNMEA("$PFLAU,0,0,0,1,0,,0,,*63", nmea_info));
 
+  /* "deviceMode" from "$SFINF" */
+  nmea_info.Reset();
+  ok1(device->ParseNMEA("$SFINF,112,0,0,1,0,0,1,0*56", nmea_info));
+  ok1(nmea_info.smart_flasher_mode_available &&
+      nmea_info.smart_flasher_mode == NMEAInfo::SmartFlasherMode::FLARM);
+  ok1(device->ParseNMEA("$SFINF,120,0,1,3,0,1,0,1*55", nmea_info));
+  ok1(nmea_info.smart_flasher_mode ==
+      NMEAInfo::SmartFlasherMode::STANDALONE);
+
+  /* an unknown mode is not shown */
+  nmea_info.Reset();
+  ok1(device->ParseNMEA("$SFINF,1,0,2,0,0,0,0,0*57", nmea_info));
+  ok1(!nmea_info.smart_flasher_mode_available);
+
   delete device;
 }
 
@@ -5003,7 +5017,7 @@ int main()
              + 25 /* LXNAVQNHModel */
              + 6 /* LXNAVQNHEcho */
              + 43 /* POV */
-             + 19 /* SmartFlasher */
+             + 25 /* SmartFlasher */
              + 27 /* SmartFlasherManage */);
   TestGeneric();
   TestTasman();
