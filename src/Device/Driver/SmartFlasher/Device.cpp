@@ -82,7 +82,11 @@ SmartFlasherDevice::ParseNMEA(const char *_line, NMEAInfo &info)
     ParseSFCTL(line, info);
   else if (type == "$SFINF"sv)
     ParseSFINF(line, info);
-  else
+  else if (type == "$SFEVT"sv) {
+    /* "$SFEVT,<event>"; other events are for future firmware */
+    if (line.ReadView() == "BUTTON"sv)
+      info.smart_flasher_button.Update(info.clock);
+  } else
     return false;
 
   return true;

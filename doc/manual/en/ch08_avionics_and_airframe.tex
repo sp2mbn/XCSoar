@@ -198,6 +198,14 @@ switched on.  The pilot event is the exception: XCSoar asks the
 SmartFlasher to pass it on, so it reaches the FLARM with the bridge
 switched off as well.
 
+When the SmartFlasher is set to report its external button to the
+display, a press does what the menu item \emph{Pilot Event Announce}
+does: XCSoar shows ``Pilot event announced'', writes the pilot event
+into its IGC file, opens the PEV start window and sends the pilot event
+to the FLARM through the SmartFlasher.  Advanced users can bind other
+actions to the input event \texttt{SMARTFLASHER\_BUTTON} in their own
+input events file.
+
 The ``SF Test'' InfoBox starts the LED test of the SmartFlasher (see
 Section~\ref{sec:infobox-device-status}).
 

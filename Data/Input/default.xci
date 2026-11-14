@@ -73,6 +73,13 @@ type=gce
 data=LANDABLE_UNREACHABLE
 event=Beep 1
 
+mode=default
+type=gce
+data=SMARTFLASHER_BUTTON
+event=StatusMessage Pilot event announced
+event=Logger note PEV
+event=PilotEvent
+
 # ------------
 # mode=default
 # ------------

@@ -14,6 +14,7 @@
 #include "Components.hpp"
 #include "BackendComponents.hpp"
 #include "FlarmProgressOverlay.hpp"
+#include "Input/InputQueue.hpp"
 #include "util/StaticString.hxx"
 
 #if defined(__linux__) && defined(USE_POLL_EVENT) && !defined(KOBO)
@@ -25,6 +26,24 @@
 #endif
 
 static TaskEventObserver task_event_observer;
+
+/**
+ * Fire #GCE_SMARTFLASHER_BUTTON once for each press of a SmartFlasher's
+ * external button.  The driver only records the time of the press,
+ * because it must not call into the user interface.
+ */
+static void
+ApplySmartFlasherButton() noexcept
+{
+  /* zero-initialised, i.e. invalid */
+  static Validity last_press;
+
+  const Validity press = CommonInterface::Basic().smart_flasher_button;
+  if (press.Modified(last_press))
+    InputEvents::processGlideComputer(GCE_SMARTFLASHER_BUTTON);
+
+  last_press = press;
+}
 
 /** Display force last written by the speed-command switch. */
 static DisplayMode owned_speed_command_page = DisplayMode::NONE;
@@ -87,6 +106,7 @@ UIReceiveSensorData(OperationEnvironment &env)
   XCSoarInterface::ReceiveGPS();
 
   ApplyVegaSwitches();
+  ApplySmartFlasherButton();
 
   if (ApplySpeedCommandDisplay()) {
     ActionInterface::UpdateDisplayMode();

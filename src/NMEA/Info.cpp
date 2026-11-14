@@ -161,6 +161,7 @@ NMEAInfo::Reset() noexcept
 
   smart_flasher_test_started.Clear();
   smart_flasher_test_refused.Clear();
+  smart_flasher_button.Clear();
   smart_flasher_info_available.Clear();
 
   device.Clear();
@@ -248,6 +249,7 @@ NMEAInfo::Expire() noexcept
   battery_level_available.Expire(clock, std::chrono::minutes(5));
   smart_flasher_test_started.Expire(clock, std::chrono::minutes(1));
   smart_flasher_test_refused.Expire(clock, std::chrono::minutes(1));
+  smart_flasher_button.Expire(clock, std::chrono::minutes(1));
   flarm.Expire(clock);
   engine.Expire(clock);
 #ifdef ANDROID
@@ -401,6 +403,7 @@ NMEAInfo::Complement(const NMEAInfo &add) noexcept
 
   smart_flasher_test_started.Complement(add.smart_flasher_test_started);
   smart_flasher_test_refused.Complement(add.smart_flasher_test_refused);
+  smart_flasher_button.Complement(add.smart_flasher_button);
 
   if (smart_flasher_info_available.Complement(
         add.smart_flasher_info_available)) {

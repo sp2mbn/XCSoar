@@ -877,6 +877,11 @@ change the zoom level when entering a thermal.
 ``LANDABLE_UNREACHABLE``
    A landable waypoint became unreachable.
 
+``SMARTFLASHER_BUTTON``
+   The external button of a SmartFlasher was pressed (``$SFEVT,BUTTON``).
+   The default binding announces a pilot event, like the menu item
+   *Pilot Event Announce*.
+
 NMEA / hardware events
 ----------------------
 

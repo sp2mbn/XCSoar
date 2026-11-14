@@ -1799,6 +1799,14 @@ TestSmartFlasher()
   ok1(!nmea_info.smart_flasher_test_started);
   ok1(!device->ParseNMEA("$PFLAU,0,0,0,1,0,,0,,*63", nmea_info));
 
+  /* the external button */
+  nmea_info.Reset();
+  ok1(device->ParseNMEA("$SFEVT,BUTTON*68", nmea_info));
+  ok1(nmea_info.smart_flasher_button);
+  nmea_info.Reset();
+  ok1(device->ParseNMEA("$SFEVT,DOUBLE*6B", nmea_info));
+  ok1(!nmea_info.smart_flasher_button);
+
   /* "deviceMode" and "testFlash" from "$SFINF" */
   nmea_info.Reset();
   ok1(device->ParseNMEA("$SFINF,112,0,0,1,0,0,1,0*56", nmea_info));
@@ -5030,7 +5038,7 @@ int main()
              + 25 /* LXNAVQNHModel */
              + 6 /* LXNAVQNHEcho */
              + 43 /* POV */
-             + 28 /* SmartFlasher */
+             + 32 /* SmartFlasher */
              + 28 /* SmartFlasherManage */);
   TestGeneric();
   TestTasman();

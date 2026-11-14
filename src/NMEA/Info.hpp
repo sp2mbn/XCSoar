@@ -370,6 +370,13 @@ struct NMEAInfo {
   Validity smart_flasher_test_started, smart_flasher_test_refused;
 
   /**
+   * When the external button of a SmartFlasher was last pressed
+   * ("$SFEVT,BUTTON").  The user interface fires
+   * #GCE_SMARTFLASHER_BUTTON for each new time stamp.
+   */
+  Validity smart_flasher_button;
+
+  /**
    * The state a SmartFlasher reports in "$SFINF".  The SmartFlasher
    * sends it on every change, and every second only while its
    * "SFINF_PERIODIC" setting is on, so it does not expire.
