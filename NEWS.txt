@@ -69,7 +69,8 @@ Version 7.47 - not yet released
     whether the SmartFlasher has answered.  Manage shows its firmware,
     supply voltage and temperature, sets the flash pattern and
     brightness, edits its parameters, and restores defaults or
-    reboots it
+    reboots it.  The pilot event reaches the FLARM through the
+    SmartFlasher, also when its bridge to the FLARM is off
   - Larus: pass on the instantaneous wind of ``$PLARW`` (``I``) next
     to the average wind (``A``)
 * android

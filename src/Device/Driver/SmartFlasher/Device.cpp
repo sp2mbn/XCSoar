@@ -15,24 +15,34 @@ using std::string_view_literals::operator""sv;
 void
 SmartFlasherDevice::StartFlashTest(OperationEnvironment &env)
 {
+  test_pending = true;
   PortWriteNMEA(port, "SFCTL,FLASH,TEST", env);
 }
 
+bool
+SmartFlasherDevice::PutPilotEvent(OperationEnvironment &env)
+{
+  PortWriteNMEA(port, "SFCTL,EVENT", env);
+  return true;
+}
+
 /**
- * Parse the answer to "$SFCTL,FLASH,TEST": "ACK,FLASH_TEST,STARTED"
- * or "NACK,<error code>".  The "Manage" dialog reads the answers to
- * its own commands with the receive thread stopped, and the
- * SmartFlasher answers only on the port the command came from, so
- * every NACK that arrives here refuses the test.
+ * Parse the answers that arrive while the receive thread runs: those
+ * to "$SFCTL,FLASH,TEST" ("ACK,FLASH_TEST,STARTED" or
+ * "NACK,<error code>") and to "$SFCTL,EVENT" ("ACK,EVENT").  The
+ * "Manage" dialog reads the answers to its own commands with the
+ * receive thread stopped.
  */
-static void
-ParseSFCTL(NMEAInputLine &line, NMEAInfo &info) noexcept
+inline void
+SmartFlasherDevice::ParseSFCTL(NMEAInputLine &line, NMEAInfo &info) noexcept
 {
   const auto type = line.ReadView();
   if (type == "ACK"sv) {
-    if (line.ReadView() == "FLASH_TEST"sv)
+    if (line.ReadView() == "FLASH_TEST"sv) {
+      test_pending = false;
       info.smart_flasher_test_started.Update(info.clock);
-  } else if (type == "NACK"sv)
+    }
+  } else if (type == "NACK"sv && test_pending.exchange(false))
     info.smart_flasher_test_refused.Update(info.clock);
 }
 

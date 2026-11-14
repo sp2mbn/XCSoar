@@ -1770,9 +1770,24 @@ TestSmartFlasher()
   ok1(!nmea_info.smart_flasher_test_refused);
 
   nmea_info.Reset();
+  static_cast<SmartFlasherDevice *>(device)->StartFlashTest(env);
   ok1(device->ParseNMEA("$SFCTL,NACK,TEST_ALREADY_ACTIVE*15", nmea_info));
   ok1(nmea_info.smart_flasher_test_refused);
   ok1(!nmea_info.smart_flasher_test_started);
+
+  /* the pilot event goes to the SmartFlasher, which passes it to the
+     FLARM */
+  port.Clear();
+  ok1(device->PutPilotEvent(env));
+  ok1(port.GetLines().size() == 1 &&
+      port.GetLines().front() == "$SFCTL,EVENT*2E");
+
+  /* its answers are not the test's */
+  nmea_info.Reset();
+  ok1(device->ParseNMEA("$SFCTL,ACK,EVENT*4B", nmea_info));
+  ok1(!nmea_info.smart_flasher_test_started);
+  ok1(device->ParseNMEA("$SFCTL,NACK,UNKNOWN*01", nmea_info));
+  ok1(!nmea_info.smart_flasher_test_refused);
 
   /* an answer to another command is not the test */
   nmea_info.Reset();
@@ -4988,7 +5003,7 @@ int main()
              + 25 /* LXNAVQNHModel */
              + 6 /* LXNAVQNHEcho */
              + 43 /* POV */
-             + 13 /* SmartFlasher */
+             + 19 /* SmartFlasher */
              + 27 /* SmartFlasherManage */);
   TestGeneric();
   TestTasman();

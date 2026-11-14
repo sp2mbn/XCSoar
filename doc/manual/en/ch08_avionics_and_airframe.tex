@@ -194,7 +194,9 @@ connection and choose the driver ``SmartFlasher''.  The SmartFlasher
 passes the FLARM data on, so XCSoar shows the traffic as with a FLARM
 connected directly.  Anything XCSoar sends to the FLARM, such as a task
 declaration, only reaches it while the SmartFlasher's two-way bridge is
-switched on.
+switched on.  The pilot event is the exception: XCSoar asks the
+SmartFlasher to pass it on, so it reaches the FLARM with the bridge
+switched off as well.
 
 The ``SF Test'' InfoBox starts the LED test of the SmartFlasher (see
 Section~\ref{sec:infobox-device-status}).
