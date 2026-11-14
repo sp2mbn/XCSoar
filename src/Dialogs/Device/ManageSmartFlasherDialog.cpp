@@ -38,6 +38,9 @@ static constexpr const char *CAPTION = "SmartFlasher";
  */
 static constexpr double MIN_TEMPERATURE = -100;
 
+/**
+ * Turn the error code of a NACK into a message for the pilot.
+ */
 [[gnu::pure]]
 static std::string
 FormatError(const std::string &code) noexcept
@@ -106,10 +109,13 @@ SmartFlasherLightWidget::Prepare([[maybe_unused]] ContainerWindow &parent,
 {
   static constexpr StaticEnumChoice mode_list[] = {
     { 0u, N_("Steady"), N_("No flashing; the light stays on.") },
-    { 1u, N_("Two quick flashes, long pause") },
-    { 2u, N_("Two medium flashes, medium pause") },
-    { 3u, N_("Two long flashes, short pause") },
-    { 4u, N_("Three quick flashes, short pause") },
+    { 1u, N_("Basic"), N_("Two flashes every 2.2 seconds.") },
+    { 2u, N_("Low alarm"),
+      N_("A flash every second for 15 seconds, then Basic.") },
+    { 3u, N_("Important alarm"),
+      N_("A flash every 0.7 seconds for 20 seconds, then Basic.") },
+    { 4u, N_("Urgent alarm"),
+      N_("A flash every 0.35 seconds for 30 seconds, then Basic.") },
     nullptr
   };
 
@@ -123,14 +129,23 @@ SmartFlasherLightWidget::Prepare([[maybe_unused]] ContainerWindow &parent,
     nullptr
   };
 
-  static_assert(std::size(mode_list) == SmartFlasherDevice::MAX_FLASH_MODE + 2);
+  static_assert(std::size(mode_list) ==
+                SmartFlasherDevice::MAX_FLASH_MODE + 2);
   static_assert(std::size(brightness_list) ==
                 SmartFlasherDevice::MAX_BRIGHTNESS + 2);
 
   AddBoolean(_("Light"), _("Switch the anti-collision light on or off."),
              status.on);
-  AddEnum(_("Flash pattern"), nullptr, mode_list, status.mode);
-  AddEnum(_("Brightness"), nullptr, brightness_list, status.brightness);
+  AddEnum(_("Flash pattern"),
+          _("On a FLARM alarm, the SmartFlasher switches to the alarm "
+            "pattern by itself. In STANDALONE mode, every pattern other "
+            "than Steady flashes as Basic. The SmartFlasher forgets this "
+            "setting when it restarts."),
+          mode_list, status.mode);
+  AddEnum(_("Brightness"),
+          _("The SmartFlasher forgets this setting when it restarts; its "
+            "POWER_LEVEL parameter keeps the brightness permanently."),
+          brightness_list, status.brightness);
   AddReadOnly(_("LED test"), nullptr, status.test);
 }
 

@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstring>
 
 using std::string_view_literals::operator""sv;
 
@@ -24,12 +25,9 @@ using std::string_view_literals::operator""sv;
 static constexpr auto REPLY_TIMEOUT = std::chrono::seconds(2);
 
 /**
- * The parameter list has no end marker that reliably comes last
- * (the ACK may come first), so it is complete once the SmartFlasher
- * has been quiet for this long.
+ * How long to wait for the end of the parameter list, which is about
+ * a dozen sentences.
  */
-static constexpr auto LIST_QUIET = std::chrono::milliseconds(500);
-
 static constexpr auto LIST_TIMEOUT = std::chrono::seconds(5);
 
 bool
@@ -67,6 +65,11 @@ ParseReply(const char *line) noexcept
     ++rest;
   else if (*rest != '\0')
     return std::nullopt;
+
+  if (!ack)
+    /* "<command>,<error code>": keep only the code */
+    if (const char *comma = std::strchr(rest, ','))
+      rest = comma + 1;
 
   return SmartFlasherDevice::Reply{ack, rest};
 }
@@ -144,8 +147,7 @@ SmartFlasherDevice::ReadVariables(std::span<const char *const> names,
 
       auto name = csv.ReadView();
       if (name == "NACK"sv) {
-        /* "$SFVAR,NACK,UNKNOWN_VAR,<NAME>" */
-        csv.Skip();
+        /* "$SFVAR,NACK,<NAME>,<error code>" */
         Answer(csv.ReadView(), std::nullopt);
         continue;
       }
@@ -170,19 +172,22 @@ SmartFlasherDevice::ReadFlashStatus(OperationEnvironment &env)
 
   PortWriteNMEA(port, "SFCTL,FLASH,STATUS", env);
 
-  /* "$SFCTL,STATUS,<KEY>,<VALUE>" for each key, in any order relative
-     to "$SFCTL,ACK,FLASH_STATUS,COMPLETE" */
+  /* "$SFCTL,STATUS,<KEY>,<VALUE>" for each key, then
+     "$SFCTL,ACK,FLASH_STATUS,COMPLETE" */
   std::optional<unsigned> on, mode, brightness, test;
 
   const TimeoutClock timeout(REPLY_TIMEOUT);
   try {
-    while (!on || !mode || !brightness || !test) {
+    while (true) {
       const char *line = reader.ReadLine(timeout);
       if (line == nullptr)
         return std::nullopt;
 
-      if (const auto reply = ParseReply(line); reply && !reply->ack)
-        return std::nullopt;
+      if (const auto reply = ParseReply(line)) {
+        if (!reply->ack)
+          return std::nullopt;
+        break;
+      }
 
       const char *status = StringAfterPrefix(line, "SFCTL,STATUS,"sv);
       if (status == nullptr)
@@ -206,6 +211,9 @@ SmartFlasherDevice::ReadFlashStatus(OperationEnvironment &env)
   } catch (const DeviceTimeout &) {
     return std::nullopt;
   }
+
+  if (!on || !mode || !brightness || !test)
+    return std::nullopt;
 
   return FlashStatus{*on != 0, *mode, *brightness, *test != 0};
 }
@@ -243,49 +251,36 @@ SmartFlasherDevice::ReadParameters(OperationEnvironment &env)
   PortWriteNMEA(port, "SFCTL,LIST", env);
 
   std::vector<Parameter> parameters;
-  bool acknowledged = false;
 
+  /* "$SFCTL,<NAME>,<VALUE>" for each parameter, then
+     "$SFCTL,ACK,LIST" */
   const TimeoutClock timeout(LIST_TIMEOUT);
   try {
-    while (!timeout.HasExpired()) {
-      const std::chrono::steady_clock::duration wait =
-        acknowledged || !parameters.empty()
-        ? std::chrono::steady_clock::duration{LIST_QUIET}
-        : timeout.GetRemainingOrZero();
-
-      const char *line = reader.ReadLine(TimeoutClock{wait});
+    while (true) {
+      const char *line = reader.ReadLine(timeout);
       if (line == nullptr)
-        break;
+        return {};
 
       CSVLine csv(line);
       if (csv.ReadView() != "SFCTL"sv)
         continue;
 
-      auto name = csv.ReadView();
+      const auto name = csv.ReadView();
       if (name == "ACK"sv) {
         if (csv.ReadView() == "LIST"sv)
-          acknowledged = true;
+          return parameters;
         continue;
       }
 
       if (name == "NACK"sv)
-        break;
-
-      if (name == "LIST"sv)
-        /* "$SFCTL,LIST,<NAME>,<VALUE>" */
-        name = csv.ReadView();
-      else if (name == "STATUS"sv || name == "STATS"sv ||
-               name == "FLASH"sv)
-        /* not a parameter; otherwise "$SFCTL,<NAME>,<VALUE>" */
-        continue;
+        return {};
 
       if (!name.empty() && IsValidValue(name))
         parameters.push_back({std::string{name}, std::string{csv.Rest()}});
     }
   } catch (const DeviceTimeout &) {
+    return {};
   }
-
-  return parameters;
 }
 
 std::optional<SmartFlasherDevice::Reply>

@@ -317,19 +317,28 @@ InfoBoxContentSmartFlasherTest::Update(InfoBoxData &data) noexcept
   data.SetValue(_("Test"));
   data.SetCommentColor(0);
 
-  const TimeStamp now{std::chrono::steady_clock::now().time_since_epoch()};
-  if (requested.IsOlderThan(now, SMART_FLASHER_TEST_SHOW)) {
-    requested.Clear();
-    data.SetCommentInvalid();
-    return;
-  }
-
   const auto &basic = CommonInterface::Basic();
-  if (answer == Answer::NONE) {
+  const TimeStamp now{std::chrono::steady_clock::now().time_since_epoch()};
+  if (requested.IsOlderThan(now, SMART_FLASHER_TEST_SHOW))
+    requested.Clear();
+  else if (answer == Answer::NONE) {
     if (basic.smart_flasher_test_started.Modified(requested))
       answer = Answer::STARTED;
     else if (basic.smart_flasher_test_refused.Modified(requested))
       answer = Answer::REFUSED;
+  }
+
+  /* "$SFINF" also shows a test started elsewhere, e.g. on the
+     SmartFlasher's web page */
+  if (basic.smart_flasher_info_available &&
+      basic.smart_flasher_test_running) {
+    data.SetComment(_("Running"));
+    return;
+  }
+
+  if (!requested) {
+    data.SetCommentInvalid();
+    return;
   }
 
   switch (answer) {

@@ -12935,10 +12935,6 @@ msgstr ""
 msgid "SF Test"
 msgstr ""
 
-#, no-c-format
-msgid "Tap to run the LED test of a connected SmartFlasher. The comment shows whether the SmartFlasher has started the test."
-msgstr ""
-
 msgid "Test"
 msgstr ""
 
@@ -12960,22 +12956,6 @@ msgstr ""
 
 #, no-c-format
 msgid "No flashing; the light stays on."
-msgstr ""
-
-#, no-c-format
-msgid "Two quick flashes, long pause"
-msgstr ""
-
-#, no-c-format
-msgid "Two medium flashes, medium pause"
-msgstr ""
-
-#, no-c-format
-msgid "Two long flashes, short pause"
-msgstr ""
-
-#, no-c-format
-msgid "Three quick flashes, short pause"
 msgstr ""
 
 msgid "Switch the anti-collision light on or off."
@@ -13012,4 +12992,49 @@ msgid "Reboot the SmartFlasher? The light and the FLARM data are interrupted for
 msgstr ""
 
 msgid "Mode"
+msgstr ""
+
+#, no-c-format
+msgid "Basic"
+msgstr ""
+
+#, no-c-format
+msgid "Two flashes every 2.2 seconds."
+msgstr ""
+
+#, no-c-format
+msgid "Low alarm"
+msgstr ""
+
+#, no-c-format
+msgid "A flash every second for 15 seconds, then Basic."
+msgstr ""
+
+#, no-c-format
+msgid "Important alarm"
+msgstr ""
+
+#, no-c-format
+msgid "A flash every 0.7 seconds for 20 seconds, then Basic."
+msgstr ""
+
+#, no-c-format
+msgid "Urgent alarm"
+msgstr ""
+
+#, no-c-format
+msgid "A flash every 0.35 seconds for 30 seconds, then Basic."
+msgstr ""
+
+msgid "On a FLARM alarm, the SmartFlasher switches to the alarm pattern by itself. In STANDALONE mode, every pattern other than Steady flashes as Basic. The SmartFlasher forgets this setting when it restarts."
+msgstr ""
+
+msgid "The SmartFlasher forgets this setting when it restarts; its POWER_LEVEL parameter keeps the brightness permanently."
+msgstr ""
+
+msgid "Running"
+msgstr ""
+
+#, no-c-format
+msgid "Tap to run the 30 second LED test of a connected SmartFlasher. The comment shows whether the SmartFlasher has started the test, and Running while the test runs."
 msgstr ""

@@ -5,7 +5,6 @@
 
 #include "Device/Driver.hpp"
 
-#include <atomic>
 #include <optional>
 #include <span>
 #include <string>
@@ -14,7 +13,6 @@
 
 class Port;
 class PortNMEAReader;
-class NMEAInputLine;
 
 /**
  * Driver for the SmartFlasher anti-collision light.  The SmartFlasher
@@ -31,14 +29,6 @@ class NMEAInputLine;
 class SmartFlasherDevice final : public AbstractDevice {
   Port &port;
 
-  /**
-   * Has StartFlashTest() sent the test command, and the answer not
-   * arrived yet?  A NACK does not name the command it refuses, so
-   * ParseNMEA() needs this to tell a refused test from a refused
-   * pilot event.
-   */
-  std::atomic<bool> test_pending{false};
-
 public:
   /**
    * The answer to a command: "$SFCTL,ACK,..." or "$SFCTL,NACK,...".
@@ -48,7 +38,7 @@ public:
 
     /**
      * The fields after "ACK," (e.g. "POWER_LEVEL,40"), or the error
-     * code after "NACK," (e.g. "READ_ONLY").
+     * code (e.g. "READ_ONLY" from "NACK,W,READ_ONLY").
      */
     std::string value;
   };
@@ -146,7 +136,6 @@ public:
   bool PutPilotEvent(OperationEnvironment &env) override;
 
 private:
-  void ParseSFCTL(NMEAInputLine &line, NMEAInfo &info) noexcept;
   /**
    * Stop the receive thread, so the answer can be read with @p
    * reader, and discard pending input.

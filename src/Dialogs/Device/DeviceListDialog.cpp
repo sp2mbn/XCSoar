@@ -203,7 +203,7 @@ class DeviceListWidget final
         basic.settings.has_standby_frequency;
       transponder = basic.settings.has_transponder_code;
       engine = basic.engine.IsAnyDefined();
-      smart_flasher_mode = basic.smart_flasher_mode_available;
+      smart_flasher_mode = basic.smart_flasher_info_available;
       smart_flasher_standalone = smart_flasher_mode &&
         basic.smart_flasher_mode == NMEAInfo::SmartFlasherMode::STANDALONE;
 

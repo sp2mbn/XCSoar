@@ -1770,8 +1770,8 @@ TestSmartFlasher()
   ok1(!nmea_info.smart_flasher_test_refused);
 
   nmea_info.Reset();
-  static_cast<SmartFlasherDevice *>(device)->StartFlashTest(env);
-  ok1(device->ParseNMEA("$SFCTL,NACK,TEST_ALREADY_ACTIVE*15", nmea_info));
+  ok1(device->ParseNMEA("$SFCTL,NACK,FLASH,TEST_ALREADY_ACTIVE*69",
+                        nmea_info));
   ok1(nmea_info.smart_flasher_test_refused);
   ok1(!nmea_info.smart_flasher_test_started);
 
@@ -1786,7 +1786,7 @@ TestSmartFlasher()
   nmea_info.Reset();
   ok1(device->ParseNMEA("$SFCTL,ACK,EVENT*4B", nmea_info));
   ok1(!nmea_info.smart_flasher_test_started);
-  ok1(device->ParseNMEA("$SFCTL,NACK,UNKNOWN*01", nmea_info));
+  ok1(device->ParseNMEA("$SFCTL,NACK,EVENT,UNKNOWN*61", nmea_info));
   ok1(!nmea_info.smart_flasher_test_refused);
 
   /* an answer to another command is not the test */
@@ -1799,19 +1799,23 @@ TestSmartFlasher()
   ok1(!nmea_info.smart_flasher_test_started);
   ok1(!device->ParseNMEA("$PFLAU,0,0,0,1,0,,0,,*63", nmea_info));
 
-  /* "deviceMode" from "$SFINF" */
+  /* "deviceMode" and "testFlash" from "$SFINF" */
   nmea_info.Reset();
   ok1(device->ParseNMEA("$SFINF,112,0,0,1,0,0,1,0*56", nmea_info));
-  ok1(nmea_info.smart_flasher_mode_available &&
-      nmea_info.smart_flasher_mode == NMEAInfo::SmartFlasherMode::FLARM);
+  ok1(nmea_info.smart_flasher_info_available &&
+      nmea_info.smart_flasher_mode == NMEAInfo::SmartFlasherMode::FLARM &&
+      !nmea_info.smart_flasher_test_running);
   ok1(device->ParseNMEA("$SFINF,120,0,1,3,0,1,0,1*55", nmea_info));
   ok1(nmea_info.smart_flasher_mode ==
       NMEAInfo::SmartFlasherMode::STANDALONE);
+  ok1(device->ParseNMEA("$SFINF,125,0,0,1,1,0,0,1*53", nmea_info));
+  ok1(nmea_info.smart_flasher_test_running);
 
-  /* an unknown mode is not shown */
+  /* an unknown mode or test state is not shown */
   nmea_info.Reset();
   ok1(device->ParseNMEA("$SFINF,1,0,2,0,0,0,0,0*57", nmea_info));
-  ok1(!nmea_info.smart_flasher_mode_available);
+  ok1(device->ParseNMEA("$SFINF,1,0,0,0,2,0,0,0*57", nmea_info));
+  ok1(!nmea_info.smart_flasher_info_available);
 
   delete device;
 }
@@ -1832,7 +1836,7 @@ TestSmartFlasherManage()
   }
 
   {
-    ReplyPort port{MakeSentence("SFCTL,NACK,TEST_ALREADY_ACTIVE")};
+    ReplyPort port{MakeSentence("SFCTL,NACK,FLASH,TEST_ALREADY_ACTIVE")};
     SmartFlasherDevice device{port};
     const auto reply = device.RunFlashTest(env);
     ok1(reply && !reply->ack && reply->value == "TEST_ALREADY_ACTIVE");
@@ -1848,7 +1852,7 @@ TestSmartFlasherManage()
   /* one request per variable; an unknown one does not hide the others */
   {
     ReplyPort port{MakeSentence("SFVAR,SW_VERSION,0.9.106") +
-                   MakeSentence("SFVAR,NACK,UNKNOWN_VAR,FOO") +
+                   MakeSentence("SFVAR,NACK,FOO,UNKNOWN_VAR") +
                    MakeSentence("SFVAR,TEMP,23.4")};
     SmartFlasherDevice device{port};
     static constexpr const char *names[] = {"SW_VERSION", "TEMP", "FOO"};
@@ -1874,13 +1878,14 @@ TestSmartFlasherManage()
     ok1(port.FindContaining("$SFCTL,FLASH,STATUS*0A") != nullptr);
   }
 
-  /* the ACK first, a test running */
+  /* a test running, the answer between FLARM data */
   {
-    ReplyPort port{MakeSentence("SFCTL,ACK,FLASH_STATUS,COMPLETE") +
-                   MakeSentence("SFCTL,STATUS,FLASH_TEST,1") +
-                   MakeSentence("SFCTL,STATUS,FLASH_ON,0") +
+    ReplyPort port{MakeSentence("SFCTL,STATUS,FLASH_ON,0") +
                    MakeSentence("SFCTL,STATUS,FLASH_MODE,0") +
-                   MakeSentence("SFCTL,STATUS,FLASH_BRIGHTNESS,3")};
+                   MakeSentence("PFLAU,0,0,0,1,0,,0,,") +
+                   MakeSentence("SFCTL,STATUS,FLASH_BRIGHTNESS,3") +
+                   MakeSentence("SFCTL,STATUS,FLASH_TEST,1") +
+                   MakeSentence("SFCTL,ACK,FLASH_STATUS,COMPLETE")};
     SmartFlasherDevice device{port};
     const auto status = device.ReadFlashStatus(env);
     ok1(status && !status->on && status->mode == 0 &&
@@ -1912,12 +1917,13 @@ TestSmartFlasherManage()
     ok1(port.FindContaining("$SFCTL,FLASH,MODE,3*02") != nullptr);
   }
 
-  /* both list formats, the ACK first */
+  /* the list ends with the ACK */
   {
-    ReplyPort port{MakeSentence("SFCTL,ACK,LIST") +
-                   MakeSentence("SFCTL,LIST,DEVICE_NAME,SmartFlasher") +
+    ReplyPort port{MakeSentence("SFCTL,DEVICE_NAME,SmartFlasher") +
                    MakeSentence("SFCTL,POWER_LEVEL,35") +
-                   MakeSentence("SFCTL,BT_ENABLED,true")};
+                   MakeSentence(
+                     "SFCTL,OTA_URL,https://smartflasher.eu/manifest") +
+                   MakeSentence("SFCTL,ACK,LIST")};
     SmartFlasherDevice device{port};
     const auto parameters = device.ReadParameters(env);
     ok1(parameters.size() == 3);
@@ -1926,8 +1932,15 @@ TestSmartFlasherManage()
         parameters[0].value == "SmartFlasher" &&
         parameters[1].name == "POWER_LEVEL" &&
         parameters[1].value == "35" &&
-        parameters[2].name == "BT_ENABLED");
+        parameters[2].value == "https://smartflasher.eu/manifest");
     ok1(port.FindContaining("$SFCTL,LIST*60") != nullptr);
+  }
+
+  /* without the ACK, the list may be incomplete */
+  {
+    ReplyPort port{MakeSentence("SFCTL,DEVICE_NAME,SmartFlasher")};
+    SmartFlasherDevice device{port};
+    ok1(device.ReadParameters(env).empty());
   }
 
   {
@@ -1939,7 +1952,7 @@ TestSmartFlasherManage()
   }
 
   {
-    ReplyPort port{MakeSentence("SFCTL,NACK,READ_ONLY")};
+    ReplyPort port{MakeSentence("SFCTL,NACK,W,READ_ONLY")};
     SmartFlasherDevice device{port};
     const auto reply = device.WriteParameter("VOLTAGE", "12", env);
     ok1(reply && !reply->ack && reply->value == "READ_ONLY");
@@ -5017,8 +5030,8 @@ int main()
              + 25 /* LXNAVQNHModel */
              + 6 /* LXNAVQNHEcho */
              + 43 /* POV */
-             + 25 /* SmartFlasher */
-             + 27 /* SmartFlasherManage */);
+             + 28 /* SmartFlasher */
+             + 28 /* SmartFlasherManage */);
   TestGeneric();
   TestTasman();
   TestLK8EX1();

@@ -1397,7 +1397,7 @@ static constexpr MetaData meta_data[] = {
     Group::SYSTEM,
     N_("SmartFlasher test"),
     N_("SF Test"),
-    N_("Tap to run the LED test of a connected SmartFlasher. The comment shows whether the SmartFlasher has started the test."),
+    N_("Tap to run the 30 second LED test of a connected SmartFlasher. The comment shows whether the SmartFlasher has started the test, and Running while the test runs."),
     IBFHelper<InfoBoxContentSmartFlasherTest>::Create,
   },
 

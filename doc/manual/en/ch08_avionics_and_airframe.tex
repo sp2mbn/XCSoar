@@ -209,7 +209,15 @@ FLARM data.  The buttons:
 \item[LED test] runs the LED test and reports whether the SmartFlasher
   has started it.
 \item[Light] switches the light on or off and sets the flash pattern and
-  the brightness.
+  the brightness.  The patterns are Steady (no flashing, the light
+  stays on), Basic (two flashes every 2.2 seconds), and Low, Important
+  and Urgent alarm (a flash every second, every 0.7 and every
+  0.35~seconds for 15, 20 and 30~seconds, then Basic).  On a FLARM
+  alarm the SmartFlasher switches to the alarm pattern by itself.  In
+  its STANDALONE mode every pattern other than Steady flashes as Basic.
+  The SmartFlasher forgets both settings when it restarts; its
+  POWER\_LEVEL parameter keeps the brightness permanently.  The dialogue
+  also shows whether the LED test is running.
 \item[Parameters] lists all settings of the SmartFlasher with their
   values.  Select one to enter a new value; the SmartFlasher checks it
   and refuses values it does not accept, and settings that cannot be

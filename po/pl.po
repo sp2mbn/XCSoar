@@ -12938,10 +12938,6 @@ msgstr "Test SmartFlashera"
 msgid "SF Test"
 msgstr "Test SF"
 
-#, no-c-format
-msgid "Tap to run the LED test of a connected SmartFlasher. The comment shows whether the SmartFlasher has started the test."
-msgstr "Dotknij, aby uruchomić test diod podłączonego SmartFlashera. Komentarz pokazuje, czy SmartFlasher rozpoczął test."
-
 msgid "Test"
 msgstr "Test"
 
@@ -12964,22 +12960,6 @@ msgstr "Ciągłe"
 #, no-c-format
 msgid "No flashing; the light stays on."
 msgstr "Bez błysków; światło świeci cały czas."
-
-#, no-c-format
-msgid "Two quick flashes, long pause"
-msgstr "Dwa krótkie błyski, długa przerwa"
-
-#, no-c-format
-msgid "Two medium flashes, medium pause"
-msgstr "Dwa średnie błyski, średnia przerwa"
-
-#, no-c-format
-msgid "Two long flashes, short pause"
-msgstr "Dwa długie błyski, krótka przerwa"
-
-#, no-c-format
-msgid "Three quick flashes, short pause"
-msgstr "Trzy krótkie błyski, krótka przerwa"
 
 msgid "Switch the anti-collision light on or off."
 msgstr "Włącz lub wyłącz światło antykolizyjne."
@@ -13016,3 +12996,48 @@ msgstr "Uruchomić ponownie SmartFlashera? Światło i dane FLARM zostaną przer
 
 msgid "Mode"
 msgstr "Tryb"
+
+#, no-c-format
+msgid "Basic"
+msgstr "Podstawowy"
+
+#, no-c-format
+msgid "Two flashes every 2.2 seconds."
+msgstr "Dwa błyski co 2,2 sekundy."
+
+#, no-c-format
+msgid "Low alarm"
+msgstr "Alarm niski"
+
+#, no-c-format
+msgid "A flash every second for 15 seconds, then Basic."
+msgstr "Błysk co sekundę przez 15 sekund, potem Podstawowy."
+
+#, no-c-format
+msgid "Important alarm"
+msgstr "Alarm ważny"
+
+#, no-c-format
+msgid "A flash every 0.7 seconds for 20 seconds, then Basic."
+msgstr "Błysk co 0,7 sekundy przez 20 sekund, potem Podstawowy."
+
+#, no-c-format
+msgid "Urgent alarm"
+msgstr "Alarm pilny"
+
+#, no-c-format
+msgid "A flash every 0.35 seconds for 30 seconds, then Basic."
+msgstr "Błysk co 0,35 sekundy przez 30 sekund, potem Podstawowy."
+
+msgid "On a FLARM alarm, the SmartFlasher switches to the alarm pattern by itself. In STANDALONE mode, every pattern other than Steady flashes as Basic. The SmartFlasher forgets this setting when it restarts."
+msgstr "Przy alarmie FLARM SmartFlasher sam przełącza się na sekwencję alarmową. W trybie STANDALONE każda sekwencja poza Ciągłym błyska jak Podstawowy. SmartFlasher zapomina to ustawienie po ponownym uruchomieniu."
+
+msgid "The SmartFlasher forgets this setting when it restarts; its POWER_LEVEL parameter keeps the brightness permanently."
+msgstr "SmartFlasher zapomina to ustawienie po ponownym uruchomieniu; parametr POWER_LEVEL zapisuje jasność na stałe."
+
+msgid "Running"
+msgstr "Trwa"
+
+#, no-c-format
+msgid "Tap to run the 30 second LED test of a connected SmartFlasher. The comment shows whether the SmartFlasher has started the test, and Running while the test runs."
+msgstr "Dotknij, aby uruchomić 30-sekundowy test diod podłączonego SmartFlashera. Komentarz pokazuje, czy SmartFlasher rozpoczął test, a w trakcie testu „Trwa”."
